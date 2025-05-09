@@ -24,7 +24,7 @@ pipeline{
                    def imageTag = previousBuildNumber ?: 'latest'
                    env.IMAGE_TAG_VERSION = imageTag
                    echo "Previous build TAG set as env variable: ${env.IMAGE_TAG_VERSION}"
-                   sh "sudo docker rmi devsahamerlin/tasksmanager:${env.IMAGE_TAG_VERSION} -f"
+                   sh "sudo docker rmi deeveshbeegun/tasksmanager:${env.IMAGE_TAG_VERSION} -f"
                }
             }
           }
@@ -50,8 +50,8 @@ pipeline{
             steps {
                 script {
                     git branch: 'main',
-                    credentialsId: 'github-user-credentials',
-                    url: 'https://github.com/devsahamerlin/acn-devsecops-upskills.git'
+                    credentialsId: 'deevesh-github-user-credentials',
+                    url: 'https://github.com/deeveshbeegun/acn-devsecops-upskills.git'
                 }
             }
         }
@@ -85,9 +85,9 @@ pipeline{
             steps{
                 withSonarQubeEnv('sonar-server') {
                     sh ''' mvn sonar:sonar \
-                    -Dsonar.projectName=merlin-acn-upskills \
+                    -Dsonar.projectName=deevesh-acn-upskills \
                     -Dsonar.java.binaries=. \
-                    -Dsonar.projectKey=merlin-acn-upskills-key '''
+                    -Dsonar.projectKey=deevesh-acn-upskills-key '''
                 }
             }
         }
@@ -95,7 +95,7 @@ pipeline{
         stage("quality gate"){
             steps {
                 script {
-                  waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                  waitForQualityGate abortPipeline: false, credentialsId: 'deevesh-sonar-token'
                 }
            }
         }
@@ -128,13 +128,13 @@ pipeline{
 
         stage('Build and Push Docker Image') {
            environment {
-             DOCKER_IMAGE = "devsahamerlin/tasksmanager:${BUILD_NUMBER}"
-             REGISTRY_CREDENTIALS = credentials('docker')
+             DOCKER_IMAGE = "deeveshbeegun/tasksmanager:${BUILD_NUMBER}"
+             REGISTRY_CREDENTIALS = credentials('deevesh-docker')
            }
            steps {
              script {
                 sh "tree"
-                "sudo docker images | grep devsahamerlin/tasksmanager*"
+                "sudo docker images | grep deeveshbeegun/tasksmanager*"
                 sh "sudo docker build -t ${DOCKER_IMAGE} ."
                 def dockerImage = docker.image("${DOCKER_IMAGE}")
                  docker.withRegistry('https://index.docker.io/v1/', "docker") {
@@ -145,7 +145,7 @@ pipeline{
         }
         stage("TRIVY DOCKER IMAGE SCAN"){
             steps{
-                sh "trivy image devsahamerlin/tasksmanager:16 --format table"
+                sh "trivy image deeveshbeegun/tasksmanager:${BUILD_NUMBER} --format table"
                 //sh "trivy image devsahamerlin/tasksmanager:${BUILD_NUMBER} --format table --exit-code 1 --severity CRITICAL"
             }
         }
@@ -155,8 +155,8 @@ pipeline{
                 sh """
                     sudo docker ps -a --filter name=tasksmanager -q | xargs -r sudo docker stop
                     sudo docker ps -a --filter name=tasksmanager -q | xargs -r sudo docker rm -f
-                    sudo docker images devsahamerlin/tasksmanager -q | xargs -r sudo docker rmi -f
-                    docker run -d --name tasksmanager -p 8083:8082 devsahamerlin/tasksmanager:${BUILD_NUMBER}
+                    sudo docker images deeveshbeegun/tasksmanager -q | xargs -r sudo docker rmi -f
+                    docker run -d --name tasksmanager -p 8088:8082 deeveshbeegun/tasksmanager:${BUILD_NUMBER}
                 """
             }
         }
@@ -169,25 +169,25 @@ pipeline{
             }
         }
 
-        stage('Update Deployment File') {
-                environment {
-                    GIT_REPO_NAME = "acn-taskmanger-upskills"
-                    GIT_USER_NAME = "devsahamerlin"
-                }
-                steps {
-                    withCredentials([string(credentialsId: 'gitops-user-secret-text', variable: 'GITHUB_TOKEN')]) {
-                        sh '''
-                            git config user.email "devsahamerlin@gmail.com"
-                            git config user.name "Saha Merlin"
-                            BUILD_NUMBER=${BUILD_NUMBER}
-                            sed -i "s/${IMAGE_TAG_VERSION}/${BUILD_NUMBER}/g" k8s/manifests/deployment.yml
-                            git add k8s/manifests/deployment.yml
-                            git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                        '''
-                    }
-                }
-        }
+//         stage('Update Deployment File') {
+//                 environment {
+//                     GIT_REPO_NAME = "acn-taskmanger-upskills"
+//                     GIT_USER_NAME = "deeveshbeegun"
+//                 }
+//                 steps {
+//                     withCredentials([string(credentialsId: 'gitops-user-secret-text', variable: 'GITHUB_TOKEN')]) {
+//                         sh '''
+//                             git config user.email "deeveshbeegun@gmail.com"
+//                             git config user.name "Deevesh Beegun"
+//                             BUILD_NUMBER=${BUILD_NUMBER}
+//                             sed -i "s/${IMAGE_TAG_VERSION}/${BUILD_NUMBER}/g" k8s/manifests/deployment.yml
+//                             git add k8s/manifests/deployment.yml
+//                             git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+//                             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+//                         '''
+//                     }
+//                 }
+//         }
     }
 
 //     post {
