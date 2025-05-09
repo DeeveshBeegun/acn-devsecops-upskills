@@ -153,8 +153,8 @@ pipeline{
         stage ('Deploy to container'){
             steps{
                 sh """
-                    sudo docker ps -a --filter name=tasksmanager -q | xargs -r sudo docker stop
-                    sudo docker ps -a --filter name=tasksmanager -q | xargs -r sudo docker rm -f
+                    sudo docker ps -a --filter name=deevesh-tasksmanager -q | xargs -r sudo docker stop
+                    sudo docker ps -a --filter name=deevesh-tasksmanager -q | xargs -r sudo docker rm -f
                     sudo docker images deeveshbeegun/tasksmanager -q | xargs -r sudo docker rmi -f
                     sudo docker run -d --name tasksmanager -p 8088:8082 deeveshbeegun/tasksmanager:${BUILD_NUMBER}
                 """
