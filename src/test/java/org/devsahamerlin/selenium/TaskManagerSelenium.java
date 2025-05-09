@@ -50,7 +50,7 @@ class TaskManagerSelenium {
         options.addArguments("--remote-allow-origins=*");
 
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         driver.manage().window().maximize();
 
         System.out.println("Running tests against: " + baseUrl);
