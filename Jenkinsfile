@@ -83,7 +83,7 @@ pipeline{
 //         }
         stage("Sonarqube Analysis "){
             steps{
-                withSonarQubeEnv('sonar-server') {
+                withSonarQubeEnv('deevesh-sonar-server') {
                     sh ''' mvn sonar:sonar \
                     -Dsonar.projectName=deevesh-acn-upskills \
                     -Dsonar.java.binaries=. \
