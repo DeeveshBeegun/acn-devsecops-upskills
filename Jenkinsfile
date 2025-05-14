@@ -143,23 +143,23 @@ pipeline{
              }
            }
         }
-        stage("TRIVY DOCKER IMAGE SCAN"){
-            steps{
-                sh "trivy image deeveshbeegun/tasksmanager:${BUILD_NUMBER} --format table"
-                //sh "trivy image devsahamerlin/tasksmanager:${BUILD_NUMBER} --format table --exit-code 1 --severity CRITICAL"
-            }
-        }
-
-        stage ('Deploy to container'){
-            steps{
-                sh """
-                    sudo docker ps -a --filter name=deevesh-tasksmanager -q | xargs -r sudo docker stop
-                    sudo docker ps -a --filter name=deevesh-tasksmanager -q | xargs -r sudo docker rm -f
-                    sudo docker images deeveshbeegun/tasksmanager -q | xargs -r sudo docker rmi -f
-                    sudo docker run -d --name deevesh-tasksmanager -p 8088:8082 deeveshbeegun/tasksmanager:${BUILD_NUMBER}
-                """
-            }
-        }
+//         stage("TRIVY DOCKER IMAGE SCAN"){
+//             steps{
+//                 sh "trivy image deeveshbeegun/tasksmanager:${BUILD_NUMBER} --format table"
+//                 //sh "trivy image devsahamerlin/tasksmanager:${BUILD_NUMBER} --format table --exit-code 1 --severity CRITICAL"
+//             }
+//         }
+//
+//         stage ('Deploy to container'){
+//             steps{
+//                 sh """
+//                     sudo docker ps -a --filter name=deevesh-tasksmanager -q | xargs -r sudo docker stop
+//                     sudo docker ps -a --filter name=deevesh-tasksmanager -q | xargs -r sudo docker rm -f
+//                     sudo docker images deeveshbeegun/tasksmanager -q | xargs -r sudo docker rmi -f
+//                     sudo docker run -d --name deevesh-tasksmanager -p 8088:8082 deeveshbeegun/tasksmanager:${BUILD_NUMBER}
+//                 """
+//             }
+//         }
 
         stage('Run Selenium Tests') {
             steps {
