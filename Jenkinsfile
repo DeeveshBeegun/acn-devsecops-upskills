@@ -164,30 +164,29 @@ pipeline{
         stage('Run Selenium Tests') {
             steps {
                 sh 'sleep 10'
-
                 sh 'mvn -Dtest=TaskManagerSelenium test'
             }
         }
 
-//         stage('Update Deployment File') {
-//                 environment {
-//                     GIT_REPO_NAME = "acn-taskmanger-upskills"
-//                     GIT_USER_NAME = "deeveshbeegun"
-//                 }
-//                 steps {
-//                     withCredentials([string(credentialsId: 'gitops-user-secret-text', variable: 'GITHUB_TOKEN')]) {
-//                         sh '''
-//                             git config user.email "deeveshbeegun@gmail.com"
-//                             git config user.name "Deevesh Beegun"
-//                             BUILD_NUMBER=${BUILD_NUMBER}
-//                             sed -i "s/${IMAGE_TAG_VERSION}/${BUILD_NUMBER}/g" k8s/manifests/deployment.yml
-//                             git add k8s/manifests/deployment.yml
-//                             git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-//                             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-//                         '''
-//                     }
-//                 }
-//         }
+        stage('Update Deployment File') {
+                environment {
+                    GIT_REPO_NAME = "acn-taskmanger-upskills"
+                    GIT_USER_NAME = "deeveshbeegun"
+                }
+                steps {
+                    withCredentials([string(credentialsId: 'gitops-user-secret-text', variable: 'GITHUB_TOKEN')]) {
+                        sh '''
+                            git config user.email "deeveshbeegun@gmail.com"
+                            git config user.name "Deevesh Beegun"
+                            BUILD_NUMBER=${BUILD_NUMBER}
+                            sed -i "s/${IMAGE_TAG_VERSION}/${BUILD_NUMBER}/g" k8s/manifests/deployment.yml
+                            git add k8s/manifests/deployment.yml
+                            git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                        '''
+                    }
+                }
+        }
     }
 
 //     post {
